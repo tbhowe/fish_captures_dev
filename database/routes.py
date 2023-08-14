@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, abort
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.urls import url_parse
 from app import app, db
@@ -9,10 +9,17 @@ from forms import LoginForm, RegistrationForm, FishCaptureForm
 @app.route('/index')
 @login_required
 def index():
+    """Render the homepage."""
     return render_template('index.html', title='Home')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    """
+    Render the login page and handle login logic.
+    
+    If the user is already authenticated, redirect to the homepage.
+    If the login form is valid and the user credentials are correct, log the user in.
+    """
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     form = LoginForm()
@@ -30,11 +37,18 @@ def login():
 
 @app.route('/logout')
 def logout():
+    """Log out the current user and redirect to the homepage."""
     logout_user()
     return redirect(url_for('index'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    """
+    Render the registration page and handle user registration logic.
+    
+    If the user is already authenticated, redirect to the homepage.
+    If the registration form is valid, register the user and redirect to the login page.
+    """
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     form = RegistrationForm()
@@ -50,6 +64,11 @@ def register():
 @app.route('/user/<username>')
 @login_required
 def user(username):
+    """
+    Render the user profile page.
+    
+    Display the user's fish captures in descending order by timestamp.
+    """
     user = User.query.filter_by(username=username).first_or_404()
     fish_captures = user.fish_captures.order_by(FishCapture.timestamp.desc())
     return render_template('user.html', user=user, fish_captures=fish_captures)
@@ -57,6 +76,11 @@ def user(username):
 @app.route('/add_fish_capture', methods=['GET', 'POST'])
 @login_required
 def add_fish_capture():
+    """
+    Render the fish capture addition page and handle fish capture addition logic.
+    
+    If the form is valid, add the fish capture to the database and redirect to the homepage.
+    """
     form = FishCaptureForm()
     if form.validate_on_submit():
         fish_capture = FishCapture(user_id=current_user.id, GPS_location=form.GPS_location.data, fishing_spot_tag=form.fishing_spot_tag.data, tide_state=form.tide_state.data, weather_conditions=form.weather_conditions.data, daylight_state=form.daylight_state.data, fish_type=form.fish_type.data, lure_bait_type=form.lure_bait_type.data)
@@ -69,6 +93,11 @@ def add_fish_capture():
 @app.route('/edit_fish_capture/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_fish_capture(id):
+    """
+    Render the fish capture edit page and handle fish capture editing logic.
+    
+    If the form is valid, update the fish capture in the database and redirect to the user's profile page.
+    """
     fish_capture = FishCapture.query.get_or_404(id)
     if current_user.id != fish_capture.user_id:
         abort(403)
@@ -97,6 +126,11 @@ def edit_fish_capture(id):
 @app.route('/delete_fish_capture/<int:id>', methods=['POST'])
 @login_required
 def delete_fish_capture(id):
+    """
+    Handle fish capture deletion logic.
+    
+    Delete the specified fish capture from the database and redirect to the user's profile page.
+    """
     fish_capture = FishCapture.query.get_or_404(id)
     if current_user.id != fish_capture.user_id:
         abort(403)
