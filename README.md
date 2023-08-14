@@ -1,9 +1,75 @@
 # fish_captures_dev
-Development repo for a mobile/web app to record fish captures with a single button press
+
+## Database Overview
+Our Flask app has a simple database system. It keeps track of users and their fishing records. Users can sign up, log in, and save details about their fishing trips. This includes where they fished and what they caught. The app makes it easy to add, view, change, or remove these records. Everything is stored safely and is easy to use.
+
+## Documentation for `routes.py`
+
+### Overview
+
+The `routes.py` file contains the route handlers for our Flask application. These handlers define the logic for various endpoints, such as user registration, login, and fish capture management.
+
+### Routes
+
+#### 1. Home (`'/'` and `'/index'`)
+
+- **Description**: Renders the homepage.
+- **Authentication**: Requires user to be logged in.
+- **Method**: GET
+
+#### 2. Login (`'/login'`)
+
+- **Description**: Renders the login page and handles user login logic.
+- **Authentication**: None.
+- **Method**: GET, POST
+
+#### 3. Logout (`'/logout'`)
+
+- **Description**: Logs out the current user and redirects to the homepage.
+- **Authentication**: None.
+- **Method**: GET
+
+#### 4. Register (`'/register'`)
+
+- **Description**: Renders the registration page and handles user registration.
+- **Authentication**: None.
+- **Method**: GET, POST
+
+#### 5. User Profile (`'/user/<username>'`)
+
+- **Description**: Renders the user profile page, displaying the user's fish captures in descending order by timestamp.
+- **Authentication**: Requires user to be logged in.
+- **Method**: GET
+
+#### 6. Add Fish Capture (`'/add_fish_capture'`)
+
+- **Description**: Renders the fish capture addition page and handles the addition of new fish captures.
+- **Authentication**: Requires user to be logged in.
+- **Method**: GET, POST
+
+#### 7. Edit Fish Capture (`'/edit_fish_capture/<int:id>'`)
+
+- **Description**: Renders the fish capture editing page and handles the editing of existing fish captures.
+- **Authentication**: Requires user to be logged in and the owner of the fish capture.
+- **Method**: GET, POST
+
+#### 8. Delete Fish Capture (`'/delete_fish_capture/<int:id>'`)
+
+- **Description**: Handles the deletion of fish captures.
+- **Authentication**: Requires user to be logged in and the owner of the fish capture.
+- **Method**: POST
+
+---
+
+### Notes
+
+- The `@login_required` decorator ensures that certain routes can only be accessed by authenticated users.
+- The `FishCaptureForm` is used to gather information about fish captures, both for adding new captures and editing existing ones.
+- Error handling is implemented to ensure that users can only edit or delete their own fish captures.
 
 
 
-## `forms.py` 
+## Documentation for `forms.py` 
 
 The `forms.py` module contains the form classes used in the application. These forms facilitate user interactions such as logging in, registering, and recording fish captures. The module leverages the Flask-WTF extension to simplify form creation and validation.
 
