@@ -1,9 +1,10 @@
-from flask import render_template, redirect, url_for, flash, request, abort
+from flask import render_template, redirect, url_for, flash, request, abort, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.urls import url_parse
 from app import app, db
 from models import User, FishCapture, UserPreferences
 from forms import LoginForm, RegistrationForm, FishCaptureForm
+import json
 
 @app.route('/')
 @app.route('/index')
@@ -138,3 +139,30 @@ def delete_fish_capture(id):
     db.session.commit()
     flash('Your fish capture has been deleted!')
     return redirect(url_for('user', username=current_user.username))
+
+@app.route('/user/<username>/preferences', methods=['PATCH'])
+@login_required
+def update_user_preferences(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    prefs = user.preferences
+    data = request.json
+    
+    if 'num_of_buttons' in data:
+        prefs.num_of_buttons = data['num_of_buttons']
+    if 'fish_button_names' in data:
+        prefs.fish_button_names = json.dumps(data['fish_button_names'])
+    if 'default_GPS_location' in data:
+        prefs.default_GPS_location = data['default_GPS_location']
+    if 'preferred_fishing_spot_tag' in data:
+        prefs.preferred_fishing_spot_tag = data['preferred_fishing_spot_tag']
+    if 'preferred_tide_state' in data:
+        prefs.preferred_tide_state = data['preferred_tide_state']
+    if 'preferred_weather_conditions' in data:
+        prefs.preferred_weather_conditions = data['preferred_weather_conditions']
+    if 'preferred_daylight_state' in data:
+        prefs.preferred_daylight_state = data['preferred_daylight_state']
+    
+    db.session.commit()
+    return jsonify(success=True), 200
+
+
