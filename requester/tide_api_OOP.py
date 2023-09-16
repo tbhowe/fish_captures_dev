@@ -93,5 +93,6 @@ if __name__ == '__main__':
     current_time = datetime.utcnow()
     print(ts.tide_cycle_time(current_time.isoformat(), tide_data))
 
+    print(tide_data[0]['Height'])
 
 # %%
