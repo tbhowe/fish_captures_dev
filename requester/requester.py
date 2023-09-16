@@ -1,4 +1,6 @@
+#%%
 import requests
+import pandas as pd
 
 class GenerateRecord:
     '''Main class for concatenating API calls and then generating a record from them'''
@@ -42,3 +44,24 @@ class APIRequest:
         response.raise_for_status()
 
         return self.process_response(response)
+
+class TestWeatherAPI(APIRequest):
+
+    def __init__(self, endpoint):
+        super().__init__(endpoint)
+
+
+
+
+dodman_latlong = [50.220564,-4.801677]
+example_endpoint = f'https://api.open-meteo.com/v1/forecast?latitude={dodman_latlong[0]}&longitude={dodman_latlong[0]}&hourly=temperature_2m,precipitation_probability,rain,pressure_msl,cloudcover_low,cloudcover_mid,cloudcover_high,windspeed_10m,winddirection_10m,windgusts_10m&daily=sunrise,sunset&timezone=Europe%2FLondon'
+test = requests.get(example_endpoint)
+print(type(test.json()))
+print(test.json().keys())
+hourly = pd.DataFrame(test.json()['hourly'])
+daily = pd.DataFrame(test.json()['daily'])
+
+hourly.head()
+
+
+# %%
