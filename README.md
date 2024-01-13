@@ -1,5 +1,18 @@
 # fish_captures_dev
 
+## Development Database Deployment
+
+Deployment occurs via a terraform script to create an Azure PostgresQL database. The Terraform script includes the setup of a Resource Group, a PostgreSQL Server, and a PostgreSQL Database. 
+
+<img width="562" alt="Screenshot 2024-01-13 at 07 51 44" src="https://github.com/tbhowe/fish_captures_dev/assets/53109226/283f1073-114f-45df-a794-7b9ee8488015">
+
+
+Variables are defined inside a `variables.tf` script, and matched to environment variables to prevent the exposure of Azure secrets and other account information. Environment variables are named `TF_VAR_<var_name_inside_variables_tf>` and then stored in a `.env` file, which is sourced via a simple bash script.
+
+<img width="798" alt="Screenshot 2024-01-13 at 07 45 58" src="https://github.com/tbhowe/fish_captures_dev/assets/53109226/732a2f7b-db07-4abe-b599-1f8c8225b99a">
+
+
+
 ## Database Overview
 Our Flask app has a simple database system. It keeps track of users and their fishing records. Users can sign up, log in, and save details about their fishing trips. This includes where they fished and what they caught. The app makes it easy to add, view, change, or remove these records. Everything is stored safely and is easy to use.
 
