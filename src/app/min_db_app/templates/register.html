@@ -1,0 +1,15 @@
+<!doctype html>
+<html>
+<head></head>
+<body>
+    <form method="post">
+        {{ form.hidden_tag() }}
+        {{ form.username.label }} {{ form.username() }}<br>
+        {{ form.email.label }} {{ form.email() }}<br>
+        {{ form.password.label }} {{ form.password() }}<br>
+        {{ form.firstname.label }} {{ form.firstname() }}<br>
+        {{ form.lastname.label }} {{ form.lastname() }}<br> 
+        {{ form.submit() }}
+    </form>
+</body>
+</html>
