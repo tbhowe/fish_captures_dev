@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Table Columns</title>
+</head>
+<body>
+    <h1>Columns in '{{ table_name }}'</h1>
+    <ul>
+        {% for column in columns %}
+            <li>{{ column }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

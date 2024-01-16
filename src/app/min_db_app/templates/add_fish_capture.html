@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Log Fish Capture</title>
+</head>
+<body>
+    <h1>Log Fish Capture</h1>
+    <form action="{{ url_for('add_fish_capture') }}" method="post">
+        <button type="submit">Log Capture</button>
+    </form>
+    <a href="{{ url_for('display_captures') }}">View Captures</a>
+</body>
+</html>

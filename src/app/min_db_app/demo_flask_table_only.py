@@ -20,13 +20,42 @@ DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}?sslmode=require'
 app.config['SECRET_KEY'] = os.urandom(24)
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+
 db = SQLAlchemy(app)
-db.create_all()
+print(app.config['SQLALCHEMY_DATABASE_URI'])
+
+## helper functions
+
+def init_db():
+    with app.app_context():
+        db.create_all()
+        print("Database tables created.")
+
+def reset_db():
+    """Drops and recreates the database tables."""
+    with app.app_context():
+        db.drop_all()  # Drops all tables
+        db.create_all()  # Creates all tables
+    print("Database tables reset.")
+
+def list_tables():
+    with app.app_context():
+        inspector = db.inspect(db.engine)
+        return inspector.get_table_names()
+
+
+def list_columns(table_name):
+    with app.app_context():
+        inspector = db.inspect(db.engine)
+        columns = inspector.get_columns(table_name)
+        return [column['name'] for column in columns]
+
+
 
 # Some dummy variables to spoof the login functionality
-user_id = 1
-lat = 36.7201600
-lng = -4.4203400
+
+
 
 ## Create the Fishcapture model
 class FishCapture(db.Model):
@@ -50,25 +79,27 @@ class FishCapture(db.Model):
     lure_bait_type = db.Column(db.String(64))
 
 
-@app.route('/add_fish_capture', methods=['POST'])
+@app.route('/add_fish_capture', methods=['GET', 'POST'])
 def add_fish_capture():
     # Custom function to populate the FishCapture class
-    fish_capture = create_fish_capture()
-    db.session.add(fish_capture)
-    db.session.commit()
-    flash('Your fish capture has been logged!')
-    return redirect(url_for('display_captures'))
+    if request.method == 'POST':
+        fish_capture = create_fish_capture()
+        db.session.add(fish_capture)
+        db.session.commit()
+        flash('Your fish capture has been logged!')
+        return redirect(url_for('display_captures'))
+    
+    return render_template('add_fish_capture.html')
 
 def create_fish_capture():
     # Here you can add your custom logic to populate the FishCapture class
-    id = uuid.uuid4()
-    user_id = user_id
-    lat= lat
-    lng = lng
+    user_id = 1
+    lat = 36.7201600
+    lng = -4.4203400
     fishing_spot_tag = "Mevagissey Harbour"
     tide_state = "HW+5"
     tide_coefficient = 76
-    weather_conditions = db.Column(db.String(64))
+    weather_conditions = "light rain"
     wind_speed = 14.2
     wind_direction = "SW"
     daylight_state = "civil twilight (Dawn)"
@@ -84,6 +115,25 @@ def display_captures():
     rows_per_page = 25
 
     # Fetch a subset of data for the current page using Flask SQLAlchemy
-    current_page_captures = FishCapture.query.order_by(FishCapture.timestamp).paginate(page, rows_per_page, False)
+    current_page_captures = FishCapture.query.order_by(FishCapture.timestamp).paginate(page=page, per_page=rows_per_page, error_out=False)
+
 
     return render_template('captures.html', captures=current_page_captures.items, page=page, total_pages=current_page_captures.pages)
+
+@app.route('/list_tables')
+def show_tables():
+    tables = list_tables()
+    return render_template('list_tables.html', tables=tables)
+
+@app.route('/list_columns/<table_name>')
+def show_columns(table_name):
+    columns = list_columns(table_name)
+    return render_template('list_columns.html', columns=columns, table_name=table_name)
+
+
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+    
+    app.run(debug=True)
+    

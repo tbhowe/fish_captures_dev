@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fish Captures</title>
+</head>
+<body>
+    <h1>Fish Captures</h1>
+    <table>
+        <tr>
+            <th>Timestamp</th>
+            <th>User ID</th>
+            <th>Latitude</th>
+            <th>Longitude</th>
+            <th>Fishing Spot Tag</th>
+            <th>Tide State</th>
+            <th>Tide Coefficient</th>
+            <th>Weather Conditions</th>
+            <th>Wind Speed</th>
+            <th>Wind Direction</th>
+            <th>Daylight State</th>
+            <th>Fish Type</th>
+            <th>Lure/Bait Type</th>
+        </tr>
+        {% for capture in captures %}
+        <tr>
+            <td>{{ capture.timestamp }}</td>
+            <td>{{ capture.user_id }}</td>
+            <td>{{ capture.lat }}</td>
+            <td>{{ capture.lng }}</td>
+            <td>{{ capture.fishing_spot_tag }}</td>
+            <td>{{ capture.tide_state }}</td>
+            <td>{{ capture.tide_coefficient }}</td>
+            <td>{{ capture.weather_conditions }}</td>
+            <td>{{ capture.wind_speed }}</td>
+            <td>{{ capture.wind_direction }}</td>
+            <td>{{ capture.daylight_state }}</td>
+            <td>{{ capture.fish_type }}</td>
+            <td>{{ capture.lure_bait_type }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <div>
+        <span>Page: {{ page }}</span>
+        {% if page > 1 %}
+        <a href="{{ url_for('display_captures', page=page-1) }}">Previous</a>
+        {% endif %}
+        {% if page < total_pages %}
+        <a href="{{ url_for('display_captures', page=page+1) }}">Next</a>
+        {% endif %}
+    </div>
+    <a href="{{ url_for('add_fish_capture') }}">Log Another Capture</a>
+</body>
+</html>
