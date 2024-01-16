@@ -7,6 +7,7 @@ from wtforms.validators import DataRequired, Email
 from dotenv import load_dotenv
 import os
 import uuid
+import datetime
 
 # Load environment variables
 load_dotenv()
@@ -24,6 +25,8 @@ db.create_all()
 
 # Some dummy variables to spoof the login functionality
 user_id = 1
+lat = 36.7201600
+lng = -4.4203400
 
 ## Create the Fishcapture model
 class FishCapture(db.Model):
@@ -34,45 +37,46 @@ class FishCapture(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer) #Add foreign key functionality later
     timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
-    GPS_location = db.Column(db.String(64))
+    lat = db.Column(db.Float)
+    lng = db.Column(db.Float)
     fishing_spot_tag = db.Column(db.String(64))
     tide_state = db.Column(db.String(64))
-    tide_coefficient = db.Column(db.String(64))
+    tide_coefficient = db.Column(db.Integer)
     weather_conditions = db.Column(db.String(64))
     wind_speed = db.Column(db.Float)
+    wind_direction = db.Column(db.String(64))
     daylight_state = db.Column(db.String(64))
     fish_type = db.Column(db.String(64))
     lure_bait_type = db.Column(db.String(64))
 
-class FishCaptureForm(FlaskForm):
-    GPS_location = StringField('GPS Location', validators=[DataRequired()])
-    fishing_spot_tag = StringField('Fishing Spot Tag', validators=[DataRequired()])
-    tide_state = StringField('Tide State', validators=[DataRequired()])
-    tide_coefficient = StringField('Tide Coefficient')
-    weather_conditions = StringField('Weather Conditions', validators=[DataRequired()])
-    wind_speed = StringField('Wind Speed')
-    daylight_state = StringField('Daylight State', validators=[DataRequired()])
-    fish_type = StringField('Fish Type', validators=[DataRequired()])
-    lure_bait_type = StringField('Lure/Bait Type', validators=[DataRequired()])
-    submit = SubmitField('Add Capture')
 
-
-
-@app.route('/add_fish_capture', methods=['GET', 'POST'])
+@app.route('/add_fish_capture', methods=['POST'])
 def add_fish_capture():
-    """
-    Render the fish capture addition page and handle fish capture addition logic.
-    
-    If the form is valid, add the fish capture to the database and redirect to the homepage.
-    """
-    form = FishCaptureForm()
-    if form.validate_on_submit():
-        fish_capture = FishCapture(user_id=user_id, GPS_location=form.GPS_location.data, fishing_spot_tag=form.fishing_spot_tag.data, tide_state=form.tide_state.data, weather_conditions=form.weather_conditions.data, daylight_state=form.daylight_state.data, fish_type=form.fish_type.data, lure_bait_type=form.lure_bait_type.data)
-        db.session.add(fish_capture)
-        db.session.commit()
-        flash('Your fish capture has been added!')
-        return redirect(url_for('index'))
-    return render_template('add_fish_capture.html', title='Add Fish Capture', form=form)
+    # Custom function to populate the FishCapture class
+    fish_capture = create_fish_capture()
+    db.session.add(fish_capture)
+    db.session.commit()
+    flash('Your fish capture has been logged!')
+    return redirect(url_for('display_captures'))
+
+def create_fish_capture():
+    # Here you can add your custom logic to populate the FishCapture class
+    id = uuid.uuid4()
+    user_id = user_id
+    lat= lat
+    lng = lng
+    fishing_spot_tag = "Mevagissey Harbour"
+    tide_state = "HW+5"
+    tide_coefficient = 76
+    weather_conditions = db.Column(db.String(64))
+    wind_speed = 14.2
+    wind_direction = "SW"
+    daylight_state = "civil twilight (Dawn)"
+    fish_type = "european bass > 60cm"
+    lure_bait_type = "SG seeker 28g"
+    return FishCapture(user_id=user_id, timestamp=datetime.datetime.now(), lat=lat, lng=lng, fishing_spot_tag=fishing_spot_tag, tide_state=tide_state, tide_coefficient=tide_coefficient, weather_conditions=weather_conditions, wind_speed=wind_speed, wind_direction=wind_direction, daylight_state=daylight_state, fish_type=fish_type, lure_bait_type=lure_bait_type)
+
+
 
 @app.route('/')
 def display_captures():
